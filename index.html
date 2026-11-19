@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="tg">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Журнали давомот</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: #f1f5f9;
+    }
+    /* Устувор кардани матн дар дохили расми html2canvas */
+    .report-badge {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-width: 58px;
+      height: 24px;
+      line-height: 1;
+      border-radius: 6px;
+      font-weight: 700;
+      font-size: 11px;
+      vertical-align: middle;
+    }
+  </style>
+</head>
+<body class="text-slate-800 pb-24">
+
+  <!-- Сарлавҳа -->
+  <header class="bg-gradient-to-r from-emerald-700 to-teal-800 text-white shadow-md sticky top-0 z-30">
+    <div class="max-w-6xl mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-3">
+      <div>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight">📋 Журнали давомот</h1>
+        <p id="currentDateDisplay" class="text-emerald-100 text-xs sm:text-sm mt-0.5 font-medium"></p>
+      </div>
+      <div class="flex items-center gap-2">
+        <label class="text-xs text-emerald-100 hidden sm:inline">Рӯзи ҳафта:</label>
+        <select id="daySelector" onchange="onDayChange()" class="bg-white/15 hover:bg-white/25 text-white border border-white/25 rounded-xl px-3 py-2 text-xs sm:text-sm font-semibold focus:outline-none">
+          <option value="1" class="text-slate-900">Душанбе</option>
+          <option value="2" class="text-slate-900">Сешанбе</option>
+          <option value="3" class="text-slate-900">Чоршанбе</option>
+          <option value="4" class="text-slate-900">Панҷшанбе</option>
+          <option value="5" class="text-slate-900">Ҷумъа</option>
+          <option value="6" class="text-slate-900">Шанбе</option>
+          <option value="0" class="text-slate-900">Якшанбе</option>
+        </select>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-3 sm:px-4 mt-5">
+
+    <!-- Ҷадвали қайди давомот -->
+    <div class="bg-white rounded-2xl shadow-xs border border-slate-200 overflow-hidden">
+      <div class="p-3.5 sm:p-4 border-b border-slate-200 flex flex-wrap items-center justify-between gap-2 bg-slate-50">
+        <span class="text-xs sm:text-sm font-semibold text-slate-700">Барои иваз кардан ба тугма пахш кунед:</span>
+        <div class="flex gap-2">
+          <button onclick="markAll('present')" class="text-xs bg-emerald-100 text-emerald-800 hover:bg-emerald-200 px-3 py-1.5 rounded-lg font-bold transition">
+            Ҳама «Ҳаст»
+          </button>
+          <button onclick="markAll('absent')" class="text-xs bg-rose-100 text-rose-800 hover:bg-rose-200 px-3 py-1.5 rounded-lg font-bold transition">
+            Ҳама «Нест»
+          </button>
+        </div>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr id="tableHeader" class="bg-slate-100 text-slate-700 text-xs border-b border-slate-200"></tr>
+          </thead>
+          <tbody id="tableBody" class="divide-y divide-slate-200 text-sm"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Тугмаҳои ҳисобот -->
+    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
+      <button onclick="generateReportPreview()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+        🖼️ Сохтани ҳисоботи расм (PNG)
+      </button>
+      <button onclick="shareTextToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+        💬 Фиристодани матн ба WhatsApp
+      </button>
+    </div>
+
+  </main>
+
+  <!-- Модали пешнамоиши ҳисоботи расм -->
+  <div id="reportModal" class="fixed inset-0 bg-slate-900/70 z-50 hidden items-center justify-center p-3 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
+        <h2 class="text-lg font-bold text-slate-800">📊 Ҳисобот барои волидон</h2>
+        <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
+      </div>
+
+      <div class="overflow-x-auto bg-slate-100 p-3 sm:p-4 rounded-2xl">
+        <div id="captureArea" class="bg-white p-6 rounded-2xl border border-slate-200 min-w-[780px]">
+          <div class="flex items-center justify-between gap-4 border-b-2 border-emerald-600 pb-3.5 mb-4">
+            <div>
+              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">
+                ҲИСОБОТИ ДАВОМОТИ ХОНАНДАГОН
+              </h3>
+              <p id="reportDateText" class="text-sm font-semibold text-emerald-700 mt-1"></p>
+            </div>
+            <div class="shrink-0 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap">
+              Журнали электронӣ
+            </div>
+          </div>
+
+          <table class="w-full text-left border-collapse text-xs">
+            <thead>
+              <tr id="reportTableHead" class="bg-slate-100 text-slate-800 font-bold border border-slate-300"></tr>
+            </thead>
+            <tbody id="reportTableBody" class="divide-y divide-slate-200 border border-slate-300"></tbody>
+          </table>
+
+          <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between gap-3 text-xs text-slate-600 font-medium">
+            <div class="flex items-center gap-4">
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                <span>Ҳаст (дар дарс буд)</span>
+              </span>
+              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
+                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
+                <span>Нест (иштирок надошт)</span>
+              </span>
+            </div>
+            <div id="reportSummaryText" class="font-bold text-slate-800 whitespace-nowrap"></div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-4 grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+        <button onclick="downloadReportImage()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition">
+          ⬇️ Зеркашии расм (PNG)
+        </button>
+        <button onclick="shareImageNative()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition">
+          📲 Фиристодан ба WhatsApp
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // =========================================================================
+    // 1. РӮЙХАТИ ХОНАНДАГОН
+    // =========================================================================
+    const STUDENTS = [
+      'Абдуллои Муҳаммад',
+      'Акбаров Холмуҳаммад',
+      'Акрамов Абдулбосит',
+      'Амонов Суҳроб',
+      'Бобоев Меҳрилло',
+      'Бобоҷонов Шаҳбоз',
+      'Бойсунов Лазизбек',
+      'Болтобаев Искандар',
+      'Зиёваддинов Самариддин',
+      'Зиёдуллозода Эҳсон',
+      'Қаландаров Абдураҳим',
+      'Қулматов Озодбек',
+      'Мадаминов Манучеҳр',
+      'Маҳмадрозиқзода Билол',
+      'Муҳаммадҷонзода Абдулло',
+      'Набиева Зайнаб',
+      'Носирова Таманно',
+      'Нуриддинхонова Хидоят',
+      'Нуъмонов Мансур',
+      'Олимов Зиеваддин',
+      'Орипов Саидмуҳаммад',
+      'Рӯзибоев Ҳазраталӣ',
+      'Темуров Ҷамшед',
+      'Тиллоев Сардор',
+      'Умарзода Асадбек',
+      'Умарӣ Абдусамад',
+      'Холматов Хуршед',
+      'Шарипов Насибулло',
+      'Шукуров Давлат',
+      'Эргашев Шарифҷон'
+    ];
+
+    // =========================================================================
+    // 2. ҶАДВАЛИ ДАРСҲО АЗ РӮИ РӮЗҲОИ ҲАФТА
+    // 1 = Душанбе, 2 = Сешанбе, 3 = Чоршанбе, 4 = Панҷшанбе, 5 = Ҷумъа, 6 = Шанбе, 0 = Якшанбе
+    // =========================================================================
+    const SCHEDULE_BY_DAY = {
+      1: [ // Душанбе
+        { time: '8:00 - 8:50', subject: 'Муқ.Ихтисосҳо' },
+        { time: '8:55 - 9:45', subject: 'Муқ.Ихтисосҳо' },
+        { time: '9:50 - 10:40', subject: 'Забони Тоҷикӣ' },
+        { time: '10:45 - 11:35', subject: 'Математика б мух' },
+        { time: '12:00 - 12:50', subject: 'Математика б мух' },
+        { time: '12:55 - 13:45', subject: 'Математика б мух' }
+      ],
+      2: [ // Сешанбе
+        { time: '8:00 - 8:50', subject: 'Фарҳангшиноси' },
+        { time: '8:55 - 9:45', subject: 'Фарҳангшиносӣ' },
+        { time: '9:50 - 10:40', subject: 'Забони хориҷӣ' },
+        { time: '10:45 - 11:35', subject: 'Забони хориҷӣ' },
+        { time: '12:00 - 12:50', subject: 'Забони хориҷӣ' }
+      ],
+      3: [ // Чоршанбе
+        { time: '12:55 - 13:45', subject: 'Таърихи м Тоҷик' },
+        { time: '13:50 - 14:40', subject: 'Барномарезӣ' },
+        { time: '14:45 - 15:35', subject: 'Барномарезӣ' },
+        { time: '15:40 - 16:30', subject: 'Барномарезӣ' }
+      ],
+      4: [ // Панҷшанбе
+        { time: '8:00 - 8:50', subject: 'Забони хориҷӣ' },
+        { time: '8:55 - 9:45', subject: 'Забони хориҷӣ' },
+        { time: '9:50 - 10:40', subject: 'Забони хориҷӣ' },
+        { time: '10:45 - 11:35', subject: 'Т.Ҷисмонӣ' },
+        { time: '12:55 - 13:45', subject: 'География' },
+        { time: '12:00 - 12:50', subject: 'География' }
+      ],
+      5: [ // Ҷумъа
+        { time: '8:00 - 8:50', subject: 'Таърих м Тоҷик' },
+        { time: '8:55 - 9:45', subject: 'География' },
+        { time: '9:50 - 10:40', subject: 'Таърих м Тоҷик' },
+        { time: '10:45 - 11:35', subject: 'География' },
+        { time: '12:00 - 12:50', subject: 'Барномарезӣ' },
+        { time: '12:55 - 13:45', subject: 'Барномарезӣ' },
+        { time: '13:50 - 14:40', subject: 'Муқ.Ихтисосҳо' }
+      ],
+      6: [ // Шанбе
+        { time: '8:00 - 8:50', subject: 'Фарҳангшиносӣ' },
+        { time: '8:55 - 9:45', subject: 'Забони тоҷикӣ' },
+        { time: '9:50 - 10:40', subject: 'Забони тоҷикӣ' },
+        { time: '10:45 - 11:35', subject: 'Таърих м Тоҷик' }
+      ],
+      0: [ // Якшанбе
+        { time: '-', subject: 'Рӯзи истироҳат' }
+      ]
+    };
+
+    const TAJIK_DAYS = {
+      0: 'Якшанбе',
+      1: 'Душанбе',
+      2: 'Сешанбе',
+      3: 'Чоршанбе',
+      4: 'Панҷшанбе',
+      5: 'Ҷумъа',
+      6: 'Шанбе'
+    };
+
+    const TAJIK_MONTHS = [
+      'январ', 'феврал', 'март', 'апрел', 'май', 'июн',
+      'июл', 'август', 'сентябр', 'октябр', 'ноябр', 'декабр'
+    ];
+
+    function getTodayKey() {
+      const now = new Date();
+      const y = now.getFullYear();
+      const m = String(now.getMonth() + 1).padStart(2, '0');
+      const d = String(now.getDate()).padStart(2, '0');
+      return `${y}-${m}-${d}`;
+    }
+
+    function getFormattedDateByDay(dayNum) {
+      const now = new Date();
+      return `${TAJIK_DAYS[dayNum]}, ${now.getDate()} ${TAJIK_MONTHS[now.getMonth()]} ${now.getFullYear()}`;
+    }
+
+    const todayKey = getTodayKey();
+    const realTodayDay = new Date().getDay();
+
+    if (localStorage.getItem('davomot_saved_date') !== todayKey) {
+      localStorage.setItem('davomot_saved_date', todayKey);
+      localStorage.removeItem('davomot_attendance_data');
+    }
+
+    let selectedDay = Number(localStorage.getItem('davomot_selected_day'));
+    if (localStorage.getItem('davomot_selected_day') === null || Number.isNaN(selectedDay)) {
+      selectedDay = realTodayDay;
+    }
+
+    let attendanceByDay = JSON.parse(localStorage.getItem('davomot_attendance_data') || '{}');
+
+    document.getElementById('daySelector').value = String(selectedDay);
+
+    function saveAttendance() {
+      localStorage.setItem('davomot_saved_date', todayKey);
+      localStorage.setItem('davomot_selected_day', String(selectedDay));
+      localStorage.setItem('davomot_attendance_data', JSON.stringify(attendanceByDay));
+    }
+
+    function onDayChange() {
+      selectedDay = Number(document.getElementById('daySelector').value);
+      saveAttendance();
+      renderTable();
+    }
+
+    function getLessonsForSelectedDay() {
+      return SCHEDULE_BY_DAY[selectedDay] || [];
+    }
+
+    function getStatus(studentIdx, lessonIdx) {
+      const dayKey = String(selectedDay);
+      if (!attendanceByDay[dayKey]) attendanceByDay[dayKey] = {};
+      const cellKey = `${studentIdx}_${lessonIdx}`;
+      return attendanceByDay[dayKey][cellKey] || 'present';
+    }
+
+    function toggleStatus(studentIdx, lessonIdx) {
+      const dayKey = String(selectedDay);
+      if (!attendanceByDay[dayKey]) attendanceByDay[dayKey] = {};
+      const cellKey = `${studentIdx}_${lessonIdx}`;
+      const current = getStatus(studentIdx, lessonIdx);
+      attendanceByDay[dayKey][cellKey] = current === 'present' ? 'absent' : 'present';
+      saveAttendance();
+      renderTable();
+    }
+
+    function markAll(status) {
+      const lessons = getLessonsForSelectedDay();
+      const dayKey = String(selectedDay);
+      attendanceByDay[dayKey] = {};
+      STUDENTS.forEach((_, sIdx) => {
+        lessons.forEach((_, lIdx) => {
+          attendanceByDay[dayKey][`${sIdx}_${lIdx}`] = status;
+        });
+      });
+      saveAttendance();
+      renderTable();
+    }
+
+    function renderTable() {
+      const lessons = getLessonsForSelectedDay();
+      document.getElementById('currentDateDisplay').textContent = getFormattedDateByDay(selectedDay);
+
+      const thead = document.getElementById('tableHeader');
+      const tbody = document.getElementById('tableBody');
+
+      let headHTML = `<th class="py-3 px-4 font-bold text-slate-800 sticky left-0 bg-slate-100 z-10 min-w-[210px] border-r border-slate-200">№ / Номи хонанда</th>`;
+      lessons.forEach((item, idx) => {
+        headHTML += `
+          <th class="py-2.5 px-3 text-center font-bold text-slate-800 min-w-[130px] border-r border-slate-200 last:border-r-0">
+            <div>${idx + 1}. ${item.subject}</div>
+            <div class="text-[11px] font-medium text-slate-500 mt-0.5">${item.time}</div>
+          </th>
+        `;
+      });
+      thead.innerHTML = headHTML;
+
+      let bodyHTML = '';
+
+      STUDENTS.forEach((student, sIdx) => {
+        bodyHTML += `<tr class="hover:bg-slate-50">`;
+        bodyHTML += `
+          <td class="py-2.5 px-4 font-semibold text-slate-800 sticky left-0 bg-white z-10 border-r border-slate-200 whitespace-nowrap">
+            <span class="text-slate-400 mr-1.5 text-xs">${sIdx + 1}.</span>${student}
+          </td>
+        `;
+
+        lessons.forEach((_, lIdx) => {
+          const status = getStatus(sIdx, lIdx);
+
+          const btnClass = status === 'present'
+            ? 'bg-emerald-100 text-emerald-800 border-emerald-300 hover:bg-emerald-200'
+            : 'bg-rose-100 text-rose-800 border-rose-300 hover:bg-rose-200';
+
+          const label = status === 'present' ? 'Ҳаст' : 'Нест';
+
+          bodyHTML += `
+            <td class="py-2 px-2 text-center border-r border-slate-100 last:border-r-0">
+              <button onclick="toggleStatus(${sIdx}, ${lIdx})"
+                class="w-20 py-1.5 rounded-xl border text-xs font-bold transition cursor-pointer ${btnClass}">
+                ${label}
+              </button>
+            </td>
+          `;
+        });
+
+        bodyHTML += `</tr>`;
+      });
+
+      tbody.innerHTML = bodyHTML;
+    }
+
+    function generateReportPreview() {
+      const lessons = getLessonsForSelectedDay();
+      document.getElementById('reportDateText').textContent = `Сана: ${getFormattedDateByDay(selectedDay)}`;
+
+      let headHTML = `<th class="py-2.5 px-3 border border-slate-300 whitespace-nowrap">№ / Хонанда</th>`;
+      lessons.forEach((item, idx) => {
+        headHTML += `
+          <th class="py-2 px-2.5 text-center border border-slate-300">
+            <div class="leading-snug">${idx + 1}. ${item.subject}</div>
+            <div class="text-[10px] font-normal text-slate-600 mt-0.5">${item.time}</div>
+          </th>
+        `;
+      });
+      document.getElementById('reportTableHead').innerHTML = headHTML;
+
+      let studentsWithAbsence = 0;
+      let bodyHTML = '';
+
+      STUDENTS.forEach((student, sIdx) => {
+        let hasAbsence = false;
+        bodyHTML += `<tr>`;
+        bodyHTML += `<td class="py-2 px-3 font-semibold text-slate-800 border border-slate-300 whitespace-nowrap">${sIdx + 1}. ${student}</td>`;
+
+        lessons.forEach((_, lIdx) => {
+          const status = getStatus(sIdx, lIdx);
+          if (status === 'absent') hasAbsence = true;
+
+          const badge = status === 'present'
+            ? `<div class="report-badge bg-emerald-100 text-emerald-800 mx-auto">Ҳаст</div>`
+            : `<div class="report-badge bg-rose-100 text-rose-800 mx-auto">Нест</div>`;
+
+          bodyHTML += `<td class="py-1.5 px-2 text-center border border-slate-300 align-middle">${badge}</td>`;
+        });
+
+        if (hasAbsence) studentsWithAbsence++;
+        bodyHTML += `</tr>`;
+      });
+
+      document.getElementById('reportTableBody').innerHTML = bodyHTML;
+      document.getElementById('reportSummaryText').textContent =
+        studentsWithAbsence === 0
+          ? `Ҳамаи ${STUDENTS.length} хонанда ҳозир буданд`
+          : `Ҳозир: ${STUDENTS.length - studentsWithAbsence} | Дарсшикан: ${studentsWithAbsence}`;
+
+      document.getElementById('reportModal').classList.remove('hidden');
+      document.getElementById('reportModal').classList.add('flex');
+    }
+
+    function closeReportModal() {
+      document.getElementById('reportModal').classList.add('hidden');
+      document.getElementById('reportModal').classList.remove('flex');
+    }
+
+    async function downloadReportImage() {
+      const area = document.getElementById('captureArea');
+      const canvas = await html2canvas(area, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true
+      });
+      const link = document.createElement('a');
+      link.download = `Davomot_${todayKey}_day${selectedDay}.png`;
+      link.href = canvas.toDataURL('image/png');
+      link.click();
+    }
+
+    async function shareImageNative() {
+      const area = document.getElementById('captureArea');
+      const canvas = await html2canvas(area, {
+        scale: 2,
+        backgroundColor: '#ffffff',
+        useCORS: true
+      });
+
+      canvas.toBlob(async (blob) => {
+        const file = new File([blob], `Davomot_${todayKey}.png`, { type: 'image/png' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          try {
+            await navigator.share({
+              files: [file],
+              title: 'Ҳисоботи давомот',
+              text: `Ҳисоботи давомот: ${getFormattedDateByDay(selectedDay)}`
+            });
+          } catch (e) {
+            console.log(e);
+          }
+        } else {
+          downloadReportImage();
+          alert('Расм зеркашӣ шуд. Онро ба гурӯҳи WhatsApp фиристед.');
+        }
+      });
+    }
+
+    function shareTextToWhatsApp() {
+      const lessons = getLessonsForSelectedDay();
+      let text = `📋 *ҲИСОБОТИ ДАВОМОТИ ХОНАНДАГОН*\n📅 ${getFormattedDateByDay(selectedDay)}\n\n`;
+
+      STUDENTS.forEach((student, sIdx) => {
+        text += `*${sIdx + 1}. ${student}*\n`;
+        lessons.forEach((item, lIdx) => {
+          const status = getStatus(sIdx, lIdx);
+          const mark = status === 'present' ? '🟢 Ҳаст' : '🔴 Нест';
+          text += `• ${item.subject} (${item.time}): ${mark}\n`;
+        });
+        text += `\n`;
+      });
+
+      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
+    }
+
+    renderTable();
+  </script>
+</body>
+</html>
