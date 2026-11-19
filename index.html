@@ -12,13 +12,12 @@
       font-family: 'Inter', sans-serif;
       background-color: #f1f5f9;
     }
-    /* Устувор кардани матн дар дохили расми html2canvas */
     .report-badge {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      min-width: 58px;
-      height: 24px;
+      min-width: 52px;
+      height: 22px;
       line-height: 1;
       border-radius: 6px;
       font-weight: 700;
@@ -77,56 +76,54 @@
       </div>
     </div>
 
-    <!-- Тугмаҳои ҳисобот -->
-    <div class="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-3">
-      <button onclick="generateReportPreview()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
+    <!-- Танҳо сохтани ҳисоботи расм -->
+    <div class="mt-6">
+      <button onclick="generateReportPreview()" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-4 px-5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
         🖼️ Сохтани ҳисоботи расм (PNG)
-      </button>
-      <button onclick="shareTextToWhatsApp()" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3.5 px-5 rounded-2xl shadow-sm transition flex items-center justify-center gap-2 text-sm sm:text-base">
-        💬 Фиристодани матн ба WhatsApp
       </button>
     </div>
 
   </main>
 
   <!-- Модали пешнамоиши ҳисоботи расм -->
-  <div id="reportModal" class="fixed inset-0 bg-slate-900/70 z-50 hidden items-center justify-center p-3 sm:p-4">
-    <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-y-auto p-4 sm:p-6 shadow-2xl">
-      <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-200">
-        <h2 class="text-lg font-bold text-slate-800">📊 Ҳисобот барои волидон</h2>
+  <div id="reportModal" class="fixed inset-0 bg-slate-900/70 z-50 hidden items-center justify-center p-2 sm:p-4">
+    <div class="bg-white rounded-3xl max-w-5xl w-full max-h-[92vh] overflow-y-auto p-3 sm:p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 mb-3 border-b border-slate-200">
+        <h2 class="text-base sm:text-lg font-bold text-slate-800">📊 Ҳисобот (расм)</h2>
         <button onclick="closeReportModal()" class="text-slate-400 hover:text-slate-700 text-2xl leading-none">&times;</button>
       </div>
 
-      <div class="overflow-x-auto bg-slate-100 p-3 sm:p-4 rounded-2xl">
-        <div id="captureArea" class="bg-white p-6 rounded-2xl border border-slate-200 min-w-[780px]">
-          <div class="flex items-center justify-between gap-4 border-b-2 border-emerald-600 pb-3.5 mb-4">
+      <!-- Блоки расм: пурра ба бар мегирад ва бурида намешавад -->
+      <div class="bg-slate-100 p-2 sm:p-4 rounded-2xl overflow-x-auto">
+        <div id="captureArea" class="bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 w-max min-w-full">
+          <div class="flex items-center justify-between gap-3 border-b-2 border-emerald-600 pb-3 mb-3">
             <div>
-              <h3 class="text-lg sm:text-xl font-extrabold text-slate-900">
+              <h3 class="text-base sm:text-xl font-extrabold text-slate-900">
                 ҲИСОБОТИ ДАВОМОТИ ХОНАНДАГОН
               </h3>
-              <p id="reportDateText" class="text-sm font-semibold text-emerald-700 mt-1"></p>
+              <p id="reportDateText" class="text-xs sm:text-sm font-semibold text-emerald-700 mt-0.5"></p>
             </div>
-            <div class="shrink-0 bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-bold px-3.5 py-1.5 rounded-full whitespace-nowrap">
+            <div class="shrink-0 bg-emerald-50 text-emerald-800 border border-emerald-200 text-[11px] sm:text-xs font-bold px-3 py-1 rounded-full whitespace-nowrap">
               Журнали электронӣ
             </div>
           </div>
 
-          <table class="w-full text-left border-collapse text-xs">
+          <table class="w-full text-left border-collapse text-[11px]">
             <thead>
               <tr id="reportTableHead" class="bg-slate-100 text-slate-800 font-bold border border-slate-300"></tr>
             </thead>
             <tbody id="reportTableBody" class="divide-y divide-slate-200 border border-slate-300"></tbody>
           </table>
 
-          <div class="mt-4 pt-3 border-t border-slate-200 flex items-center justify-between gap-3 text-xs text-slate-600 font-medium">
-            <div class="flex items-center gap-4">
-              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
-                <span>Ҳаст (дар дарс буд)</span>
+          <div class="mt-3 pt-2.5 border-t border-slate-200 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-600 font-medium">
+            <div class="flex items-center gap-3">
+              <span class="inline-flex items-center gap-1 whitespace-nowrap">
+                <span class="w-2 h-2 rounded-full bg-emerald-500 inline-block"></span>
+                <span>Ҳаст</span>
               </span>
-              <span class="inline-flex items-center gap-1.5 whitespace-nowrap">
-                <span class="w-2.5 h-2.5 rounded-full bg-rose-500 inline-block"></span>
-                <span>Нест (иштирок надошт)</span>
+              <span class="inline-flex items-center gap-1 whitespace-nowrap">
+                <span class="w-2 h-2 rounded-full bg-rose-500 inline-block"></span>
+                <span>Нест</span>
               </span>
             </div>
             <div id="reportSummaryText" class="font-bold text-slate-800 whitespace-nowrap"></div>
@@ -139,7 +136,7 @@
           ⬇️ Зеркашии расм (PNG)
         </button>
         <button onclick="shareImageNative()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 px-4 rounded-xl text-sm transition">
-          📲 Фиристодан ба WhatsApp
+          🖼️ Фиристодани расм
         </button>
       </div>
     </div>
@@ -384,12 +381,12 @@
       const lessons = getLessonsForSelectedDay();
       document.getElementById('reportDateText').textContent = `Сана: ${getFormattedDateByDay(selectedDay)}`;
 
-      let headHTML = `<th class="py-2.5 px-3 border border-slate-300 whitespace-nowrap">№ / Хонанда</th>`;
+      let headHTML = `<th class="py-2 px-2.5 border border-slate-300 whitespace-nowrap">№ / Хонанда</th>`;
       lessons.forEach((item, idx) => {
         headHTML += `
-          <th class="py-2 px-2.5 text-center border border-slate-300">
-            <div class="leading-snug">${idx + 1}. ${item.subject}</div>
-            <div class="text-[10px] font-normal text-slate-600 mt-0.5">${item.time}</div>
+          <th class="py-1.5 px-2 text-center border border-slate-300 whitespace-nowrap">
+            <div class="leading-tight">${idx + 1}. ${item.subject}</div>
+            <div class="text-[9px] font-normal text-slate-600 mt-0.5">${item.time}</div>
           </th>
         `;
       });
@@ -401,7 +398,7 @@
       STUDENTS.forEach((student, sIdx) => {
         let hasAbsence = false;
         bodyHTML += `<tr>`;
-        bodyHTML += `<td class="py-2 px-3 font-semibold text-slate-800 border border-slate-300 whitespace-nowrap">${sIdx + 1}. ${student}</td>`;
+        bodyHTML += `<td class="py-1.5 px-2.5 font-semibold text-slate-800 border border-slate-300 whitespace-nowrap">${sIdx + 1}. ${student}</td>`;
 
         lessons.forEach((_, lIdx) => {
           const status = getStatus(sIdx, lIdx);
@@ -411,7 +408,7 @@
             ? `<div class="report-badge bg-emerald-100 text-emerald-800 mx-auto">Ҳаст</div>`
             : `<div class="report-badge bg-rose-100 text-rose-800 mx-auto">Нест</div>`;
 
-          bodyHTML += `<td class="py-1.5 px-2 text-center border border-slate-300 align-middle">${badge}</td>`;
+          bodyHTML += `<td class="py-1 px-1.5 text-center border border-slate-300 align-middle">${badge}</td>`;
         });
 
         if (hasAbsence) studentsWithAbsence++;
@@ -433,13 +430,19 @@
       document.getElementById('reportModal').classList.remove('flex');
     }
 
-    async function downloadReportImage() {
+    async function renderFullCanvas() {
       const area = document.getElementById('captureArea');
-      const canvas = await html2canvas(area, {
+      return await html2canvas(area, {
         scale: 2,
         backgroundColor: '#ffffff',
-        useCORS: true
+        useCORS: true,
+        width: area.scrollWidth,
+        windowWidth: area.scrollWidth
       });
+    }
+
+    async function downloadReportImage() {
+      const canvas = await renderFullCanvas();
       const link = document.createElement('a');
       link.download = `Davomot_${todayKey}_day${selectedDay}.png`;
       link.href = canvas.toDataURL('image/png');
@@ -447,12 +450,7 @@
     }
 
     async function shareImageNative() {
-      const area = document.getElementById('captureArea');
-      const canvas = await html2canvas(area, {
-        scale: 2,
-        backgroundColor: '#ffffff',
-        useCORS: true
-      });
+      const canvas = await renderFullCanvas();
 
       canvas.toBlob(async (blob) => {
         const file = new File([blob], `Davomot_${todayKey}.png`, { type: 'image/png' });
@@ -460,34 +458,16 @@
           try {
             await navigator.share({
               files: [file],
-              title: 'Ҳисоботи давомот',
-              text: `Ҳисоботи давомот: ${getFormattedDateByDay(selectedDay)}`
+              title: 'Ҳисоботи давомот'
             });
           } catch (e) {
             console.log(e);
           }
         } else {
           downloadReportImage();
-          alert('Расм зеркашӣ шуд. Онро ба гурӯҳи WhatsApp фиристед.');
+          alert('Расм зеркашӣ шуд.');
         }
       });
-    }
-
-    function shareTextToWhatsApp() {
-      const lessons = getLessonsForSelectedDay();
-      let text = `📋 *ҲИСОБОТИ ДАВОМОТИ ХОНАНДАГОН*\n📅 ${getFormattedDateByDay(selectedDay)}\n\n`;
-
-      STUDENTS.forEach((student, sIdx) => {
-        text += `*${sIdx + 1}. ${student}*\n`;
-        lessons.forEach((item, lIdx) => {
-          const status = getStatus(sIdx, lIdx);
-          const mark = status === 'present' ? '🟢 Ҳаст' : '🔴 Нест';
-          text += `• ${item.subject} (${item.time}): ${mark}\n`;
-        });
-        text += `\n`;
-      });
-
-      window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, '_blank');
     }
 
     renderTable();
